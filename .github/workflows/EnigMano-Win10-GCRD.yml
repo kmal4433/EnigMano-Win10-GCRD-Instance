@@ -1,39 +1,35 @@
-name: ⚡ Clean Windows RDP
+name: ⚡ Clean RDP Working
 
 on:
   workflow_dispatch:
     inputs:
       CODE:
-        description: "Paste CRD command from remotedesktop.google.com/headless"
+        description: "Paste CRD command"
         required: true
       PIN:
-        description: "6+ digit PIN"
+        description: "PIN"
         required: true
         default: "123456"
 
 jobs:
-  build:
+  rdp:
     runs-on: windows-2022
 
     steps:
-      - name: 🧰 Setup Chrome Remote Desktop
+      - name: Install Chrome Remote Desktop
         run: |
-          Write-Host "Downloading Chrome Remote Desktop..."
           Invoke-WebRequest https://dl.google.com/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi -OutFile crd.msi
           Start-Process msiexec.exe -Wait -ArgumentList '/i crd.msi /quiet /norestart'
 
-      - name: 🚀 Start Remote Desktop
+      - name: Start CRD
         run: |
           $code = "${{ github.event.inputs.CODE }}"
           $pin = "${{ github.event.inputs.PIN }}"
 
-          Write-Host "Starting Chrome Remote Desktop..."
+          cmd /c "$code --pin=$pin"
 
-          cmd.exe /c "$code --pin=$pin"
-
-      - name: ⏳ Keep Alive
+      - name: Keep Alive
         run: |
-          Write-Host "Machine is running..."
-          for ($i=0; $i -lt 360; $i++) {
+          for ($i=0; $i -lt 300; $i++) {
             Start-Sleep -Seconds 60
           }
